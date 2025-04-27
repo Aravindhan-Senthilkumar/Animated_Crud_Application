@@ -1,5 +1,6 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { DarkThemeColors, LightThemeColors } from '../constants/color';
+import { storage } from '../storage/storage';
 
 type ThemeColors = {
   background: string;
@@ -27,7 +28,20 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   const theme = isDarkMode ? DarkThemeColors : LightThemeColors;
 
-  const toggleTheme = () => setIsDarkMode((prev) => !prev);
+  useEffect(() => {
+    const savedTheme = storage.getBoolean('isDarkMode');
+    if (savedTheme !== undefined && savedTheme !== null) {
+      setIsDarkMode(savedTheme);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setIsDarkMode((prev) => {
+      const newTheme = !prev;
+      storage.set('isDarkMode', newTheme);
+      return newTheme;
+    });
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, isDarkMode, toggleTheme }}>

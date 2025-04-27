@@ -27,6 +27,8 @@ import {handleLogin} from '../../redux/slices/authSlice';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import useToggler from '../../hooks/useToggler';
 import { storage } from '../../storage/storage';
+import useLoader from '../../hooks/useLoader';
+import LoaderScreen from '../../components/LoaderScreen';
 
 type Props = {};
 
@@ -35,9 +37,13 @@ const DashBoardScreen = (props: Props) => {
 
   const {theme} = useTheme();
 
+  const { loading,startLoading,stopLoading } = useLoader()
+
+
   const [membersData, setMembersData] = useState<fetchedMemberData[]>([]);
 
   const fetchMembersData = async () => {
+    startLoading()
     try {
       const response = await memberApi.get<fetchedMemberResponse>(
         `/fetchMembers/aravindhan.cofe@gmail.com`,
@@ -47,6 +53,8 @@ const DashBoardScreen = (props: Props) => {
     } catch (err) {
       const error = err as AxiosError<{message: string}>;
       toast.error(error.response?.data.message as string);
+    }finally{
+      stopLoading()
     }
   };
 
@@ -120,6 +128,7 @@ const DashBoardScreen = (props: Props) => {
         />
       </View>
       <ConfirmationModal isVisible={modalToggler.value} onCancel={modalToggler.toggler} onConfirm={handleLogout}/>
+      <LoaderScreen isLoading={loading}/>
     </MainViewWrapper>
   );
 };
