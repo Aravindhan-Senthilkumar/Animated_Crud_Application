@@ -12,11 +12,14 @@ import { toast } from 'sonner-native'
 import useAppNavigation from '../hooks/useAppNavigation'
 import useToggler from '../hooks/useToggler'
 import ConfirmationModal from './ConfirmationModal'
+import { storage } from '../storage/storage'
+import useLoader from '../hooks/useLoader'
+import LoaderScreen from './LoaderScreen'
 
 type Props = {
   memberData?: memberPayload,
   isUpdating: boolean,
-  onPress?:(userData:memberPayload | undefined) => void,
+  onPress:(userData:memberPayload) => void, 
   onDelete?:any,
   memberId?:string
 }
@@ -55,7 +58,7 @@ const MemberAddingComponent = ({ memberData, isUpdating,onPress,onDelete,memberI
     name:''
   })
 
-
+  const { loading,startLoading,stopLoading } = useLoader()
   const validationCheck = () => {
     let hasError = false;
     const newErrors: memberErrorsPayload = {
@@ -97,22 +100,35 @@ const MemberAddingComponent = ({ memberData, isUpdating,onPress,onDelete,memberI
   };
 
   const handleRegisterMember = () => {
+    startLoading()
     const hasPermitted = validationCheck();
     if(hasPermitted){
-      onPress(userData)
+      onPress(userData as memberPayload)
     }
+    stopLoading()
   }
 
   
+  
   const hanldeUpdateMember = async() => {
-
+    startLoading()
+    const token = storage.getString('token')
     const hasPermitted = validationCheck();
-
     if(!hasPermitted)
     return;
 
+    if(userData.age === memberData?.age && userData.email === memberData.email && userData.gender === memberData.gender && userData.name === memberData.name){
+      toast.error("No changes detected")
+      stopLoading()
+      return;
+    }
+
     try{
-      const response = await memberApi.put(`/updateMember/${memberId}`,userData)
+      const response = await memberApi.put(`/updateMember/${memberId}`,userData,{
+        headers:{
+          'Authorization':`Bearer ${token}`
+        }
+      })
       console.log('response: ', response);
 
       toast.success(response.data.message)
@@ -122,6 +138,8 @@ const MemberAddingComponent = ({ memberData, isUpdating,onPress,onDelete,memberI
     }catch(error){
       const err = error as AxiosError<{message:string}>
       toast.error(err.response?.data.message as string)
+    }finally{
+      stopLoading()
     }
   }
 
@@ -195,6 +213,7 @@ const MemberAddingComponent = ({ memberData, isUpdating,onPress,onDelete,memberI
         isUpdating && <ThemedButton onClick={modalToggler.toggler} style={styles.deleteBtn} buttonColor='red'>Delete member</ThemedButton>
       }
       <ConfirmationModal isVisible={modalToggler.value} onCancel={modalToggler.toggler} onConfirm={onDelete}/>
+      <LoaderScreen isLoading={loading}/>
     </ScrollView>
   )
 }

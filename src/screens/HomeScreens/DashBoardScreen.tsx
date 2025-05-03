@@ -44,10 +44,15 @@ const DashBoardScreen = (props: Props) => {
 
   const fetchMembersData = async () => {
     startLoading()
+    const token = storage.getString('token')
+    console.log('token: ', token);
     try {
       const response = await memberApi.get<fetchedMemberResponse>(
-        `/fetchMembers/aravindhan.cofe@gmail.com`,
-      );
+        `/fetchMembers`,{
+          headers:{
+            'Authorization' : `Bearer ${token}`
+          }
+        });
 
       setMembersData(response.data.membersData);
     } catch (err) {
@@ -77,8 +82,8 @@ const DashBoardScreen = (props: Props) => {
         <View style={styles.imageWrapper}>
           <Image source={avatar} style={styles.avatarImage} />
         </View>
-        <View>
-          <Text style={[styles.name, {color: theme.text}]}>{item.name}</Text>
+        <View> 
+          <Text numberOfLines={1} style={[styles.name, {color: theme.text}]}>{item.name}</Text>
           <Text style={[styles.role, {color: theme.text}]}>{item.age}</Text>
           <Text style={[styles.role, {color: theme.text}]}>{item.gender}</Text>
           <Text style={[styles.email, {color: theme.text}]}>{item.email}</Text>
@@ -167,9 +172,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     borderWidth: 1,
+    width:'100%'
   },
   cardContent: {
     flexDirection: 'row',
+    paddingRight:40,
+    width:'80%'
   },
   imageWrapper: {
     height: dimensions.height / 8,
@@ -212,5 +220,5 @@ const styles = StyleSheet.create({
   iconStyle: {
     marginRight: dimensions.marginSM,
     marginBottom: dimensions.marginSM,
-  },
+  }
 });

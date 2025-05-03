@@ -7,6 +7,7 @@ import { toast } from 'sonner-native';
 import { memberApi } from '../../api/api';
 import { addMemberResponse, memberPayload } from '../../types/commonTypes';
 import useAppNavigation from '../../hooks/useAppNavigation';
+import { storage } from '../../storage/storage';
 
 type Props = {
   
@@ -17,8 +18,14 @@ const AddMemberScreen = (props:Props) => {
   const { navigateToDashBoardScreen } = useAppNavigation()
 
   const handleAddMember = async (userData:memberPayload) => {
+    const token = storage.getString('token')
+
     try{
-      const response = await memberApi.post('/addMember',userData)
+      const response = await memberApi.post('/addMember',userData,{
+        headers:{
+          'authorization':`Bearer ${token}`
+        } 
+      })
 
       const receivedData:addMemberResponse = response.data
 
@@ -35,7 +42,7 @@ const AddMemberScreen = (props:Props) => {
 
   return (
     <MainViewWrapper isHome={false}>
-      <MemberAddingComponent isUpdating={false} onPress={handleAddMember}/>
+      <MemberAddingComponent isUpdating={false} onPress={handleAddMember as any}/>
     </MainViewWrapper>
   );
 };
