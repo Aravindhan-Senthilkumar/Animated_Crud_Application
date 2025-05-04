@@ -41,6 +41,7 @@ const DashBoardScreen = (props: Props) => {
 
 
   const [membersData, setMembersData] = useState<fetchedMemberData[]>([]);
+  console.log('membersData: ', membersData);
 
   const fetchMembersData = async () => {
     startLoading()
@@ -130,6 +131,9 @@ const DashBoardScreen = (props: Props) => {
           keyExtractor={(item, index) => index.toString()}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={(<View style={styles.emptyContainer}>
+            <Text style={[styles.emptyText, {color: theme.text}]}>Member lists are empty</Text>
+          </View>)}
         />
       </View>
       <ConfirmationModal isVisible={modalToggler.value} onCancel={modalToggler.toggler} onConfirm={handleLogout}/>
@@ -220,5 +224,15 @@ const styles = StyleSheet.create({
   iconStyle: {
     marginRight: dimensions.marginSM,
     marginBottom: dimensions.marginSM,
+  },
+  emptyContainer:{
+    justifyContent:'center',
+    alignItems:'center',
+    height:dimensions.height/1.5
+  },
+  emptyText:{
+    fontSize:dimensions.fontMD,
+    fontWeight:'100',
+    letterSpacing:2
   }
 });

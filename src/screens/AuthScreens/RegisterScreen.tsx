@@ -17,6 +17,7 @@ import useLoader from '../../hooks/useLoader';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../redux/store';
 import { handleLogin } from '../../redux/slices/authSlice';
+import { storage } from '../../storage/storage';
 
 const RegisterScreen = () => {
   const {theme} = useTheme();
@@ -82,6 +83,7 @@ const RegisterScreen = () => {
       const receivedData: registerResponse = response.data;
       if (receivedData.message) {
         toast.success(receivedData.message);
+        storage.set('token',receivedData.token)
         dispatch(handleLogin(true))
       }
       console.log('User registered successfully', receivedData);
